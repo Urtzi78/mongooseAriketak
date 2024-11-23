@@ -28,7 +28,7 @@ app.use('/api/ikasleak', ikasleRoutes);
 app.use('/api/taldeak', taldeRoutes);
 
 app.get('/', (req, res) => {
-    res.render('test');
+    res.render('index');
 });
 
 app.get('/test', (req, res) => {
