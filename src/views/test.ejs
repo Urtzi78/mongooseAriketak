@@ -27,6 +27,8 @@
 
             const data = await response.json();
             document.getElementById('newIkasle').innerText = JSON.stringify(data, null, 2);
+            loadIkasleak();
+            loadIkasleakForAssign();
         }
 
         async function deleteIkasle() {
@@ -38,6 +40,8 @@
 
             const data = await response.json();
             document.getElementById("deletedIkasle").innerText = JSON.stringify(data,null,2);
+            loadIkasleak();
+            loadIkasleakForAssign();
         }
 
         async function loadIkasleak() {
@@ -81,9 +85,80 @@
 
             const data = await response.json();
             document.getElementById('editedIkasle').innerText = JSON.stringify(data, null, 2);
+            loadIkasleak();
+            loadIkasleakForAssign();
         }
 
-        document.addEventListener('DOMContentLoaded', loadIkasleak);
+        async function createTalde() {
+            const tizena = document.getElementById('tizena').value;
+
+            const response = await fetch('/api/taldeak', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ izena: tizena })
+            });
+
+            const data = await response.json();
+            document.getElementById('newTalde').innerText = JSON.stringify(data, null, 2);
+            loadTaldeak();
+        }
+
+        async function loadTaldeak() {
+            const response = await fetch('/api/taldeak');
+            const taldeak = await response.json();
+            const select = document.getElementById('taldeSelect');
+    
+            select.options.length = 1;
+    
+            taldeak.forEach(talde => {
+                const option = new Option(talde.izena, talde._id);
+                select.add(option);
+            });
+        }
+
+        async function loadIkasleakForAssign() {
+            const response = await fetch('/api/ikasleak');
+            const ikasleak = await response.json();
+            const select = document.getElementById('ikasleSelect2');
+    
+            select.options.length = 1;
+    
+            ikasleak.forEach(ikasle => {
+                const option = new Option(ikasle.email, ikasle._id);
+                select.add(option);
+            });
+        }
+
+        async function assignIkasleToTalde() {
+            const taldeId = document.getElementById('taldeSelect').value;
+            const ikasleId = document.getElementById('ikasleSelect2').value;
+
+            const response = await fetch('/api/taldeak/assign', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ taldeId, ikasleId })
+            });
+
+            const data = await response.json();
+            document.getElementById('assignedIkasle').innerText = JSON.stringify(data, null, 2);
+        }
+
+
+        async function fetchTaldeak() {
+            const response = await fetch('/api/taldeak');
+            const data = await response.json();
+            document.getElementById('taldeak').innerText = JSON.stringify(data, null, 2);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadIkasleak();
+            loadTaldeak();
+            loadIkasleakForAssign();
+        });
     </script>
 </head>
 <body>
@@ -118,7 +193,7 @@
     <h2>Edit Ikasle</h2>
     <form onsubmit="event.preventDefault(); editIkasle();">
         <select id="ikasleSelect" onchange="loadIkasleData()" required>
-            <option value="" disabled selected>Aukeratu ikasle bat:</option>
+            <option value="" disabled selected>Aukeratu ikasle bat</option>
         </select>
         <br>
         <label for="editIzena">Izena:</label>
@@ -133,5 +208,33 @@
         <button type="submit">Edit</button>
     </form>
     <pre id="editedIkasle"></pre>
+
+    <h2>Create Talde</h2>
+    <form onsubmit="event.preventDefault(); createTalde();">
+        <label for="tizena">Talde izena:</label>
+        <input type="text" id="tizena" name="tizena" required>
+        <br>
+        <button type="submit">Create</button>
+    </form>
+    <pre id="newTalde"></pre>
+
+    <h2>Assign Ikasle to Talde</h2>
+    <form onsubmit="event.preventDefault(); assignIkasleToTalde();">
+        <select id="taldeSelect" onchange="loadTaldeData()" required>
+            <option value="" disabled selected>Aukeratu talde bat</option>
+        </select>
+        <br>
+        <select id="ikasleSelect2" onchange="loadIkasleData()" required>
+            <option value="" disabled selected>Aukeratu ikasle bat</option>
+        </select>
+        <br>
+        <button type="submit">Assign</button>
+    </form>
+    <pre id="assignedIkasle"></pre>
+    <pre id="assignedTalde"></pre>
+
+    <h2>Get Taldeak</h2>
+    <button onclick="fetchTaldeak()">Get</button>
+    <pre id="taldeak"></pre>
 </body>
 </html>
