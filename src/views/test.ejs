@@ -28,6 +28,62 @@
             const data = await response.json();
             document.getElementById('newIkasle').innerText = JSON.stringify(data, null, 2);
         }
+
+        async function deleteIkasle() {
+            const id = document.getElementById("deleteId").value;
+
+            const response = await fetch(`/api/ikasleak/${id}`, {
+            method: "DELETE",
+            });
+
+            const data = await response.json();
+            document.getElementById("deletedIkasle").innerText = JSON.stringify(data,null,2);
+        }
+
+        async function loadIkasleak() {
+            const response = await fetch('/api/ikasleak');
+            const ikasleak = await response.json();
+            const select = document.getElementById('ikasleSelect');
+    
+            select.options.length = 1;
+    
+            ikasleak.forEach(ikasle => {
+                const option = new Option(ikasle.email, ikasle._id);
+                select.add(option);
+            });
+        }
+
+        async function loadIkasleData() {
+            const selectedId = document.getElementById('ikasleSelect').value;
+            if (!selectedId) return;
+
+            const response = await fetch(`/api/ikasleak/${selectedId}`);
+            const ikasle = await response.json();
+    
+            document.getElementById('editIzena').value = ikasle.izena;
+            document.getElementById('editAdina').value = ikasle.adina;
+            document.getElementById('editEmail').value = ikasle.email;
+        }
+
+        async function editIkasle() {
+            const selectedId = document.getElementById('ikasleSelect').value;
+            const izena = document.getElementById('editIzena').value;
+            const adina = document.getElementById('editAdina').value;
+            const email = document.getElementById('editEmail').value;
+
+            const response = await fetch(`/api/ikasleak/${selectedId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ izena, adina, email })
+            });
+
+            const data = await response.json();
+            document.getElementById('editedIkasle').innerText = JSON.stringify(data, null, 2);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadIkasleak);
     </script>
 </head>
 <body>
@@ -49,5 +105,33 @@
         <button type="submit">Create</button>
     </form>
     <pre id="newIkasle"></pre>
+
+    <h2>Delete Ikasle</h2>
+    <form onsubmit="event.preventDefault(); deleteIkasle();">
+        <label for="deleteId">Ikasle ID:</label>
+        <input type="text" id="deleteId" name="deleteId" required>
+        <br>
+        <button type="submit">Delete</button>
+    </form>
+    <pre id="deletedIkasle"></pre>
+
+    <h2>Edit Ikasle</h2>
+    <form onsubmit="event.preventDefault(); editIkasle();">
+        <select id="ikasleSelect" onchange="loadIkasleData()" required>
+            <option value="" disabled selected>Aukeratu ikasle bat:</option>
+        </select>
+        <br>
+        <label for="editIzena">Izena:</label>
+        <input type="text" id="editIzena" name="editIzena" required>
+        <br>
+        <label for="editAdina">Adina:</label>
+        <input type="number" id="editAdina" name="editAdina" required>
+        <br>
+        <label for="editEmail">Email:</label>
+        <input type="email" id="editEmail" name="editEmail" required>
+        <br>
+        <button type="submit">Edit</button>
+    </form>
+    <pre id="editedIkasle"></pre>
 </body>
 </html>
